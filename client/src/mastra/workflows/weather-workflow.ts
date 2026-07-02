@@ -1,5 +1,6 @@
 import { createStep, createWorkflow } from '@mastra/core/workflows';
 import { z } from 'zod';
+import { withWorkflowTracing } from '../lib/workflow-tracing';
 
 const forecastSchema = z.object({
   date: z.string(),
@@ -94,7 +95,7 @@ const planActivities = createStep({
   outputSchema: z.object({
     activities: z.string(),
   }),
-  execute: async ({ inputData, mastra }) => {
+  execute: async ({ inputData, mastra, tracingContext }) => {
     const forecast = inputData
 
     if (!forecast) {
@@ -148,12 +149,15 @@ const planActivities = createStep({
 
       Maintain this exact formatting for consistency, using the emoji and section headers as shown.`;
 
-    const response = await agent.stream([
-      {
-        role: 'user',
-        content: prompt,
-      },
-    ]);
+    const response = await agent.stream(
+      [
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+      withWorkflowTracing({ tracingContext }),
+    );
 
     let activitiesText = '';
 
@@ -170,12 +174,20 @@ const planActivities = createStep({
 
 const weatherWorkflow = createWorkflow({
   id: 'weather-workflow',
+  description: 'Fetches weather for a city and suggests activities via the weather agent.',
+  metadata: {
+    domain: 'demo',
+    feature: 'weather',
+  },
   inputSchema: z.object({
     city: z.string().describe('The city to get the weather for'),
   }),
   outputSchema: z.object({
     activities: z.string(),
-  })
+  }),
+  options: {
+    validateInputs: true,
+  },
 })
   .then(fetchWeather)
   .then(planActivities);

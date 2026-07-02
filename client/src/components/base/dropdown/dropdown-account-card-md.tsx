@@ -70,7 +70,7 @@ export const DropdownAccountCardMD = () => {
                     <Dropdown.Section selectionMode="single" selectedKeys={selectedAccount} onSelectionChange={setSelectedAccount}>
                         <Dropdown.SectionHeader className="px-4 pt-1.5 pb-0.5 text-xs font-semibold text-brand-secondary">Company</Dropdown.SectionHeader>
 
-                        <Dropdown.Item id="untitledui">Untitled UI</Dropdown.Item>
+                        <Dropdown.Item id="crainiometrix">Crainiometrix</Dropdown.Item>
                         <Dropdown.Item id="sisyphus">Sisyphus Ventures</Dropdown.Item>
                     </Dropdown.Section>
 
@@ -90,7 +90,7 @@ export const DropdownAccountCardMD = () => {
                     </SubmenuTrigger>
                 </Dropdown.Menu>
                 <div className="flex justify-between border-t border-secondary px-4 py-3">
-                    <span className="truncate text-sm text-quaternary">&copy; Untitled UI</span>
+                    <span className="truncate text-sm text-quaternary">&copy; Crainiometrix</span>
                     <span className="text-sm text-quaternary">v12.6.8</span>
                 </div>
             </Dropdown.Popover>

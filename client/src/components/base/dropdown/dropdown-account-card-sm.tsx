@@ -92,7 +92,7 @@ export const DropdownAccountCardSM = () => {
                     </SubmenuTrigger>
                 </Dropdown.Menu>
                 <div className="flex justify-between border-t border-secondary px-4 py-3">
-                    <span className="truncate text-sm text-quaternary">&copy; Untitled UI</span>
+                    <span className="truncate text-sm text-quaternary">&copy; Crainiometrix</span>
                     <span className="text-sm text-quaternary">v12.6.8</span>
                 </div>
             </Dropdown.Popover>

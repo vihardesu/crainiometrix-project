@@ -13,6 +13,19 @@ export type AgentUrgency = "Urgent" | "Non-Urgent";
 export type AgentDecision = "AI" | "Human" | "Escalate" | "Indeterminate";
 export type AgentActionStatus = "processing" | "completed" | "failed";
 
+export type AgentToolCallRecord = {
+    tool: string;
+    input: unknown;
+    output: unknown;
+};
+
+export type AgentActionMetadata = {
+    categoryRationale?: string;
+    urgencyRationale?: string;
+    toolCalls?: AgentToolCallRecord[];
+    error?: string;
+};
+
 export type ConversationWithParticipant = Conversation & {
     participant: Profile;
 };

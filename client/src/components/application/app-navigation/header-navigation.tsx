@@ -6,7 +6,7 @@ import { TabList, Tabs } from "@/components/application/tabs/tabs";
 import { BadgeWithDot } from "@/components/base/badges/badges";
 import { DropdownAccountButton } from "@/components/base/dropdown/dropdown-account-button";
 import { Input } from "@/components/base/input/input";
-import { UntitledLogo } from "@/components/foundations/logo/untitledui-logo";
+import { CrainiometrixLogo } from "@/components/foundations/logo/crainiometrix-logo";
 import { cx } from "@/utils/cx";
 import { MobileNavigationHeader } from "./base-components/mobile-header";
 import { NavAccountCard } from "./base-components/nav-account-card";
@@ -126,7 +126,7 @@ export const HeaderNavigationBase = ({
             <MobileNavigationHeader>
                 <aside className="flex h-full max-w-full flex-col justify-between overflow-auto bg-primary pt-4">
                     <div className="flex flex-col gap-5 px-4">
-                        <UntitledLogo className="h-6" />
+                        <CrainiometrixLogo className="h-6" />
 
                         <Input size="md" aria-label="Search" placeholder="Search" icon={SearchLg} />
                     </div>
@@ -150,8 +150,8 @@ export const HeaderNavigationBase = ({
                             >
                                 Settings
                             </NavItemBase>
-                            <NavItemBase type="link" href="https://www.untitledui.com/" icon={Settings01}>
-                                Open in browser
+                            <NavItemBase type="link" href="/dashboard" icon={Settings01}>
+                                Dashboard
                             </NavItemBase>
                         </div>
 
@@ -171,7 +171,7 @@ export const HeaderNavigationBase = ({
                                 href="/"
                                 className="rounded-xs outline-focus-ring focus-visible:outline-2 focus-visible:outline-offset-2"
                             >
-                                <UntitledLogo className="h-6" />
+                                <CrainiometrixLogo className="h-6" />
                             </a>
                         </div>
 

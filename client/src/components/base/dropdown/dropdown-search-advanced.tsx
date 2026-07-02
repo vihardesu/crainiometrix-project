@@ -31,7 +31,7 @@ export const DropdownSearchAdvanced = () => {
                     <Dropdown.Menu selectionMode="multiple" selectedKeys={selectedUsers} onSelectionChange={setSelectedUsers}>
                         <SubmenuTrigger>
                             <Dropdown.Item id="untitledui" textValue="Olivia Rhye" selectionIndicator="checkbox">
-                                Untitled UI
+                                Crainiometrix
                             </Dropdown.Item>
                             <Dropdown.Popover placement="right top" offset={-6} className="w-50">
                                 <Dropdown.Menu selectionMode="multiple">

@@ -61,6 +61,8 @@ export const draftResponseSchema = z.object({
     draftResponse: z.string(),
 });
 
+export type ToolCallRecord = z.infer<typeof toolCallRecordSchema>;
+
 export const workflowOutputSchema = z.object({
     conversationId: z.string(),
     triggerMessageId: z.string(),

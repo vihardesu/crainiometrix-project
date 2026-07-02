@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Source_Serif_4 } from "next/font/google";
 import { QueryProvider } from "@/providers/query-provider";
 import { RouteProvider } from "@/providers/router-provider";
 import { Theme } from "@/providers/theme";
@@ -12,13 +12,19 @@ const inter = Inter({
     variable: "--font-inter",
 });
 
+const sourceSerif = Source_Serif_4({
+    subsets: ["latin"],
+    display: "swap",
+    variable: "--font-source-serif",
+});
+
 export const metadata: Metadata = {
     title: "Crainiometrix",
     description: "Care navigator platform for dementia patient support",
 };
 
 export const viewport: Viewport = {
-    themeColor: "#7f56d9",
+    themeColor: "#d97757",
     colorScheme: "light dark",
 };
 
@@ -29,7 +35,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className={cx(inter.variable, "bg-primary antialiased")}>
+            <body className={cx(inter.variable, sourceSerif.variable, "bg-primary antialiased")}>
                 <QueryProvider>
                     <RouteProvider>
                         <Theme>{children}</Theme>

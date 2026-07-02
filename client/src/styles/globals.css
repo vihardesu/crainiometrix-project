@@ -31,12 +31,25 @@
 html,
 body {
     font-family: var(--font-body);
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-variant-ligatures: contextual;
     font-variant-ligatures: contextual;
     -webkit-font-kerning: normal;
     font-kerning: normal;
+}
+
+::selection {
+    background-color: color-mix(in srgb, var(--color-brand-500) 24%, transparent);
+    color: var(--color-text-primary);
+}
+
+.font-display,
+[class*="text-display-"] {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
 }
 
 /* Hide the default expand arrow on Safari.  */

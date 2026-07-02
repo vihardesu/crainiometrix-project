@@ -1,4 +1,5 @@
 import { mastra } from "@/mastra";
+import { buildTriageTracingOptions } from "@/mastra/lib/workflow-tracing";
 import type { WorkflowInput, WorkflowOutput } from "@/mastra/schemas/triage-schemas";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json } from "./database.types";
@@ -7,7 +8,7 @@ import {
     fetchTriageContextAdmin,
     syncConversationUnreadCount,
 } from "./server-queries";
-import type { UnreadInboundMessage } from "./types";
+import type { UnreadInboundMessage, AgentActionMetadata } from "./types";
 
 type AdminClient = SupabaseClient<Database>;
 
@@ -37,7 +38,10 @@ export async function buildWorkflowInput(
 export async function runMessageTriageWorkflow(input: WorkflowInput): Promise<WorkflowOutput> {
     const workflow = mastra.getWorkflow("messageTriageWorkflow");
     const run = await workflow.createRun();
-    const result = await run.start({ inputData: input });
+    const result = await run.start({
+        inputData: input,
+        tracingOptions: buildTriageTracingOptions(input),
+    });
 
     if (result.status !== "success") {
         const errorMessage =
@@ -61,13 +65,12 @@ export async function persistTriageResult(
     output: WorkflowOutput,
 ): Promise<void> {
     const completedAt = new Date().toISOString();
-    const metadata = JSON.parse(
-        JSON.stringify({
-            categoryRationale: output.categoryRationale,
-            urgencyRationale: output.urgencyRationale,
-            toolCalls: output.toolCalls ?? [],
-        }),
-    ) as Json;
+    const actionMetadata: AgentActionMetadata = {
+        categoryRationale: output.categoryRationale,
+        urgencyRationale: output.urgencyRationale,
+        toolCalls: output.toolCalls ?? [],
+    };
+    const metadata = JSON.parse(JSON.stringify(actionMetadata)) as Json;
 
     let responseMessageId: string | null = null;
 

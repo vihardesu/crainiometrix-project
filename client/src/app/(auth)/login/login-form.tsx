@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { UntitledLogo } from "@/components/foundations/logo/untitledui-logo";
+import { CrainiometrixLogo } from "@/components/foundations/logo/crainiometrix-logo";
 import { Button } from "@/components/base/buttons/button";
 import { Input } from "@/components/base/input/input";
 import { DEMO_CREDENTIALS_HINT } from "@/lib/auth/demo-users";
@@ -15,12 +15,12 @@ export function LoginForm() {
     return (
         <div className="w-full max-w-md">
             <div className="mb-8 flex justify-center">
-                <UntitledLogo className="h-8" />
+                <CrainiometrixLogo className="h-8" />
             </div>
 
             <div className="rounded-2xl bg-primary p-8 shadow-xs ring-1 ring-secondary">
                 <div className="mb-6">
-                    <h1 className="text-display-xs font-semibold text-primary">Sign in</h1>
+                    <h1 className="font-display text-display-xs font-semibold text-primary">Sign in</h1>
                     <p className="mt-1 text-sm text-tertiary">Care navigator demo access</p>
                 </div>
 

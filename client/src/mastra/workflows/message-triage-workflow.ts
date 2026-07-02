@@ -1,5 +1,7 @@
 import { createStep, createWorkflow } from "@mastra/core/workflows";
 import { z } from "zod";
+import { extractAgentToolCalls } from "../lib/extract-tool-calls";
+import { withWorkflowTracing } from "../lib/workflow-tracing";
 import {
     buildCategoryPrompt,
     buildDecisionPrompt,
@@ -35,7 +37,7 @@ const classifyCategoryStep = createStep({
     description: "Classifies the inbound message into a care navigation category",
     inputSchema: workflowInputSchema,
     outputSchema: categoryClassificationSchema,
-    execute: async ({ inputData, mastra }) => {
+    execute: async ({ inputData, mastra, tracingContext }) => {
         const agent = mastra?.getAgent("categoryClassifierAgent");
 
         if (!agent) {
@@ -44,6 +46,7 @@ const classifyCategoryStep = createStep({
 
         const result = await agent.generate(buildCategoryPrompt(inputData), {
             structuredOutput: { schema: categoryClassificationSchema },
+            ...withWorkflowTracing({ tracingContext }),
         });
 
         if (!result.object) {
@@ -59,7 +62,7 @@ const classifyUrgencyStep = createStep({
     description: "Classifies whether the inbound message is urgent",
     inputSchema: workflowInputSchema,
     outputSchema: urgencyClassificationSchema,
-    execute: async ({ inputData, mastra }) => {
+    execute: async ({ inputData, mastra, tracingContext }) => {
         const agent = mastra?.getAgent("urgencyClassifierAgent");
 
         if (!agent) {
@@ -68,6 +71,7 @@ const classifyUrgencyStep = createStep({
 
         const result = await agent.generate(buildUrgencyPrompt(inputData), {
             structuredOutput: { schema: urgencyClassificationSchema },
+            ...withWorkflowTracing({ tracingContext }),
         });
 
         if (!result.object) {
@@ -95,7 +99,7 @@ const triageDecisionStep = createStep({
         "fetch-participant-context": participantContextSchema,
     }),
     outputSchema: triageStateSchema,
-    execute: async ({ inputData, getInitData, mastra }) => {
+    execute: async ({ inputData, getInitData, mastra, tracingContext }) => {
         const initData = getInitData<WorkflowInput>();
         const categoryResult = inputData["classify-category"];
         const urgencyResult = inputData["classify-urgency"];
@@ -117,6 +121,7 @@ const triageDecisionStep = createStep({
             ),
             {
                 structuredOutput: { schema: triageDecisionSchema },
+                ...withWorkflowTracing({ tracingContext }),
             },
         );
 
@@ -164,7 +169,7 @@ const draftResponseStep = createStep({
     description: "Sub-agent drafts an AI reply using care navigation tools",
     inputSchema: triageStateSchema,
     outputSchema: workflowOutputSchema,
-    execute: async ({ inputData, getInitData, mastra }) => {
+    execute: async ({ inputData, getInitData, mastra, tracingContext }) => {
         const initData = getInitData<WorkflowInput>();
         const agent = mastra?.getAgent("responseDrafterAgent");
 
@@ -174,19 +179,15 @@ const draftResponseStep = createStep({
 
         const result = await agent.generate(
             buildDraftPrompt(initData, inputData.category, inputData.urgency, inputData.summary),
-            { maxSteps: 8 },
+            {
+                maxSteps: 8,
+                ...withWorkflowTracing({ tracingContext }),
+            },
         );
-
-        const toolCalls =
-            result.toolCalls?.map((call, index) => ({
-                tool: call.payload.toolName,
-                input: call.payload.args,
-                output: result.toolResults?.[index]?.payload?.result ?? null,
-            })) ?? [];
 
         return buildWorkflowOutput(inputData, {
             draftResponse: result.text,
-            toolCalls,
+            toolCalls: extractAgentToolCalls(result),
         });
     },
 });
@@ -217,8 +218,16 @@ const indeterminateDecisionStep = createStep({
 
 const messageTriageWorkflow = createWorkflow({
     id: "message-triage-workflow",
+    description: "Triages inbound navigator messages and decides whether to auto-respond, escalate, or defer.",
+    metadata: {
+        domain: "messaging",
+        feature: "agent-triage",
+    },
     inputSchema: workflowInputSchema,
     outputSchema: workflowOutputSchema,
+    options: {
+        validateInputs: true,
+    },
 })
     .parallel([classifyCategoryStep, classifyUrgencyStep, fetchParticipantContextStep])
     .then(triageDecisionStep)
