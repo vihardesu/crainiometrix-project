@@ -11,10 +11,10 @@ export default async function DashboardPage() {
             </div>
 
             <div className="rounded-xl border border-secondary bg-secondary_subtle p-8">
-                <h2 className="text-lg font-semibold text-primary">Placeholder</h2>
+                <h2 className="text-lg font-semibold text-primary">Messages & AI Triage</h2>
                 <p className="mt-2 max-w-prose text-md text-tertiary">
-                    Messages command center and AI mode triage are coming in the next phase. Use the sidebar to explore upcoming
-                    sections.
+                    Use the Messages sidebar to manage conversations. Toggle AI mode on the messages page to let the agent
+                    triage unread messages automatically.
                 </p>
             </div>
         </div>

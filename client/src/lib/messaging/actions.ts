@@ -25,6 +25,76 @@ async function requireNavigatorProfileId() {
     return { navigator, profileId: profile.id };
 }
 
+async function isAiModeEnabled(profileId: string): Promise<boolean> {
+    const supabase = createAdminClient();
+    const { data } = await supabase
+        .from("navigator_settings")
+        .select("ai_mode_enabled")
+        .eq("navigator_id", profileId)
+        .maybeSingle();
+
+    return data?.ai_mode_enabled ?? false;
+}
+
+export async function getNavigatorSettings() {
+    const { profileId } = await requireNavigatorProfileId();
+    const supabase = createAdminClient();
+
+    const { data, error } = await supabase
+        .from("navigator_settings")
+        .select("ai_mode_enabled, updated_at")
+        .eq("navigator_id", profileId)
+        .maybeSingle();
+
+    if (error) {
+        return { error: error.message };
+    }
+
+    return {
+        aiModeEnabled: data?.ai_mode_enabled ?? false,
+        updatedAt: data?.updated_at ?? null,
+    };
+}
+
+export async function setAiModeEnabled(enabled: boolean) {
+    const { profileId } = await requireNavigatorProfileId();
+    const supabase = createAdminClient();
+
+    const { error } = await supabase.from("navigator_settings").upsert(
+        {
+            navigator_id: profileId,
+            ai_mode_enabled: enabled,
+            updated_at: new Date().toISOString(),
+        },
+        { onConflict: "navigator_id" },
+    );
+
+    if (error) {
+        return { error: error.message };
+    }
+
+    revalidatePath("/messages");
+    return { success: true, aiModeEnabled: enabled };
+}
+
+export async function escalateConversation(conversationId: string) {
+    const { profileId } = await requireNavigatorProfileId();
+    const supabase = createAdminClient();
+
+    const { error } = await supabase
+        .from("conversations")
+        .update({ is_escalated: true })
+        .eq("id", conversationId)
+        .eq("navigator_id", profileId);
+
+    if (error) {
+        return { error: error.message };
+    }
+
+    revalidatePath("/messages");
+    return { success: true };
+}
+
 export async function sendNavigatorMessage(conversationId: string, body: string) {
     const trimmed = body.trim();
 
@@ -33,6 +103,11 @@ export async function sendNavigatorMessage(conversationId: string, body: string)
     }
 
     const { profileId } = await requireNavigatorProfileId();
+
+    if (await isAiModeEnabled(profileId)) {
+        return { error: "AI mode is active. Turn off AI mode to send messages manually." };
+    }
+
     const supabase = createAdminClient();
 
     const { error } = await supabase.from("messages").insert({
@@ -88,7 +163,12 @@ export async function sendParticipantMessage(conversationId: string, participant
 }
 
 export async function markConversationRead(conversationId: string) {
-    await requireNavigatorProfileId();
+    const { profileId } = await requireNavigatorProfileId();
+
+    if (await isAiModeEnabled(profileId)) {
+        return { success: true };
+    }
+
     const supabase = createAdminClient();
 
     const { error: messagesError } = await supabase

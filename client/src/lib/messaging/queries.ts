@@ -1,5 +1,5 @@
 import { createClient } from "@/utils/supabase/client";
-import type { ConversationWithParticipant, MessageWithSender, Profile } from "./types";
+import type { ConversationWithParticipant, MessageWithSender, Profile, AgentAction } from "./types";
 
 export function sortConversations(conversations: ConversationWithParticipant[]): ConversationWithParticipant[] {
     return [...conversations].sort((a, b) => {
@@ -81,3 +81,34 @@ export async function fetchParticipants(): Promise<Profile[]> {
 
     return data ?? [];
 }
+
+export async function fetchNavigatorSettings(navigatorProfileId: string): Promise<{ ai_mode_enabled: boolean } | null> {
+    const supabase = createClient();
+    const { data, error } = await supabase
+        .from("navigator_settings")
+        .select("ai_mode_enabled")
+        .eq("navigator_id", navigatorProfileId)
+        .maybeSingle();
+
+    if (error) {
+        throw error;
+    }
+
+    return data;
+}
+
+export async function fetchAgentActionsForConversation(conversationId: string): Promise<AgentAction[]> {
+    const supabase = createClient();
+    const { data, error } = await supabase
+        .from("agent_actions")
+        .select("*")
+        .eq("conversation_id", conversationId)
+        .order("created_at", { ascending: true });
+
+    if (error) {
+        throw error;
+    }
+
+    return data ?? [];
+}
+

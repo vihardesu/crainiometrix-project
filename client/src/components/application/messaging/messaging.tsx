@@ -14,6 +14,7 @@ export type Message = {
     readAt?: string;
     typing?: boolean;
     status?: "sent" | "read" | "failed";
+    isAiGenerated?: boolean;
     user?: {
         name?: string;
         avatarUrl?: string;
@@ -91,9 +92,10 @@ export const MessageStatus = ({ status, readAt }: MessageStatusProps) => {
 interface MessageItemProps extends ComponentPropsWithRef<"li"> {
     msg: Message;
     showUserLabel?: boolean;
+    footer?: ReactNode;
 }
 
-export const MessageItem = ({ msg, showUserLabel = true, ...props }: MessageItemProps) => {
+export const MessageItem = ({ msg, showUserLabel = true, footer, ...props }: MessageItemProps) => {
     const renderActions = () => (
         <div className="dark-mode absolute right-2 -bottom-5 z-1 flex gap-1.5 rounded-lg bg-primary_alt px-2 py-1.5 opacity-0 shadow-xl transition duration-100 ease-linear group-hover/msg:opacity-100">
             <button
@@ -161,7 +163,12 @@ export const MessageItem = ({ msg, showUserLabel = true, ...props }: MessageItem
                     <div
                         className={cx(
                             "group/msg relative rounded-lg px-3 py-2 text-md wrap-break-word text-primary ring-1 ring-secondary ring-inset",
-                            msg.user?.me ? "rounded-tr-none bg-primary pr-4" : "rounded-tl-none bg-secondary",
+                            msg.user?.me ? "rounded-tr-none pr-4" : "rounded-tl-none",
+                            msg.user?.me && msg.isAiGenerated
+                                ? "bg-brand-primary_alt ring-brand-secondary"
+                                : msg.user?.me
+                                  ? "bg-primary"
+                                  : "bg-secondary",
                             // Link styles
                             "[&_a]:rounded-xs [&_a]:text-brand-secondary [&_a]:underline [&_a]:underline-offset-2 [&_a]:outline-focus-ring [&_a]:transition [&_a]:duration-100 [&_a]:ease-linear [&_a]:hover:text-brand-secondary_hover [&_a]:focus-visible:outline-2 [&_a]:focus-visible:outline-offset-2",
                         )}
@@ -276,6 +283,8 @@ export const MessageItem = ({ msg, showUserLabel = true, ...props }: MessageItem
                         <div className="size-1 animate-bounce rounded-full bg-fg-tertiary" />
                     </div>
                 )}
+
+                {footer}
             </article>
         </li>
     );

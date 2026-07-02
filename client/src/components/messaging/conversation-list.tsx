@@ -11,9 +11,10 @@ interface ConversationListProps {
     selectedId: string | null;
     onSelect: (conversationId: string) => void;
     isLoading?: boolean;
+    processingConversationId?: string | null;
 }
 
-export function ConversationList({ conversations, selectedId, onSelect, isLoading }: ConversationListProps) {
+export function ConversationList({ conversations, selectedId, onSelect, isLoading, processingConversationId }: ConversationListProps) {
     if (isLoading) {
         return (
             <div className="flex flex-1 items-center justify-center p-6">
@@ -35,6 +36,7 @@ export function ConversationList({ conversations, selectedId, onSelect, isLoadin
             {conversations.map((conversation) => {
                 const isSelected = conversation.id === selectedId;
                 const hasUnread = conversation.unread_count > 0;
+                const isProcessing = conversation.id === processingConversationId;
 
                 return (
                     <li key={conversation.id}>
@@ -45,6 +47,7 @@ export function ConversationList({ conversations, selectedId, onSelect, isLoadin
                                 "flex w-full items-start gap-3 border-b border-secondary px-4 py-3 text-left transition duration-100",
                                 isSelected ? "bg-secondary_subtle" : "hover:bg-primary_hover",
                                 conversation.is_escalated && "border-l-2 border-l-utility-red-500",
+                                isProcessing && "bg-brand-primary_alt/30",
                             )}
                         >
                             <Avatar size="md" alt={conversation.participant.full_name} initials={getInitials(conversation.participant.full_name)} />

@@ -39,6 +39,83 @@ export type Database = {
   }
   public: {
     Tables: {
+      agent_actions: {
+        Row: {
+          category: string | null
+          completed_at: string | null
+          conversation_id: string
+          created_at: string
+          decision: string | null
+          id: string
+          metadata: Json
+          navigator_id: string
+          response_message_id: string | null
+          status: string
+          summary: string | null
+          trigger_message_id: string
+          urgency: string | null
+        }
+        Insert: {
+          category?: string | null
+          completed_at?: string | null
+          conversation_id: string
+          created_at?: string
+          decision?: string | null
+          id?: string
+          metadata?: Json
+          navigator_id: string
+          response_message_id?: string | null
+          status: string
+          summary?: string | null
+          trigger_message_id: string
+          urgency?: string | null
+        }
+        Update: {
+          category?: string | null
+          completed_at?: string | null
+          conversation_id?: string
+          created_at?: string
+          decision?: string | null
+          id?: string
+          metadata?: Json
+          navigator_id?: string
+          response_message_id?: string | null
+          status?: string
+          summary?: string | null
+          trigger_message_id?: string
+          urgency?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_actions_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_actions_navigator_id_fkey"
+            columns: ["navigator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_actions_response_message_id_fkey"
+            columns: ["response_message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_actions_trigger_message_id_fkey"
+            columns: ["trigger_message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
           created_at: string
@@ -93,6 +170,7 @@ export type Database = {
           conversation_id: string
           created_at: string
           id: string
+          is_ai_generated: boolean
           read_at: string | null
           sender_id: string
           sender_role: string
@@ -102,6 +180,7 @@ export type Database = {
           conversation_id: string
           created_at?: string
           id?: string
+          is_ai_generated?: boolean
           read_at?: string | null
           sender_id: string
           sender_role: string
@@ -111,6 +190,7 @@ export type Database = {
           conversation_id?: string
           created_at?: string
           id?: string
+          is_ai_generated?: boolean
           read_at?: string | null
           sender_id?: string
           sender_role?: string
@@ -127,6 +207,32 @@ export type Database = {
             foreignKeyName: "messages_sender_id_fkey"
             columns: ["sender_id"]
             isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      navigator_settings: {
+        Row: {
+          ai_mode_enabled: boolean
+          navigator_id: string
+          updated_at: string
+        }
+        Insert: {
+          ai_mode_enabled?: boolean
+          navigator_id: string
+          updated_at?: string
+        }
+        Update: {
+          ai_mode_enabled?: boolean
+          navigator_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "navigator_settings_navigator_id_fkey"
+            columns: ["navigator_id"]
+            isOneToOne: true
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
