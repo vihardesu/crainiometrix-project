@@ -1,8 +1,16 @@
-export default function AdminPage() {
+import { getSessionNavigator } from "@/lib/auth/session";
+import { AdminMessagingClient } from "@/components/messaging/admin-messaging-client";
+
+export default async function AdminPage() {
+    const navigator = await getSessionNavigator();
+
+    if (!navigator) {
+        return null;
+    }
+
     return (
-        <div className="flex flex-col gap-4">
-            <h1 className="text-display-sm font-semibold text-primary">Admin</h1>
-            <p className="text-md text-tertiary">Coming soon — send messages on behalf of patients and caregivers.</p>
+        <div className="-mx-4 -my-6 md:-mx-8 lg:-mx-10">
+            <AdminMessagingClient navigatorId={navigator.id} />
         </div>
     );
 }

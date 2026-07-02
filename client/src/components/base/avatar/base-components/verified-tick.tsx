@@ -1,6 +1,6 @@
 "use client";
 
-import { cx } from "@/utils/cx";
+import { cx } from "@/lib/utils/cx";
 
 const sizes = {
     xs: "size-2.5",
