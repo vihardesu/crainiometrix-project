@@ -46,8 +46,17 @@ const placeholderAccounts: NavAccountType[] = [
 export const NavAccountMenu = ({
     className,
     selectedAccountId = "olivia",
+    accounts = placeholderAccounts,
+    demoMode = false,
+    onSignOut,
     ...dialogProps
-}: AriaDialogProps & { className?: string; accounts?: NavAccountType[]; selectedAccountId?: string }) => {
+}: AriaDialogProps & {
+    className?: string;
+    accounts?: NavAccountType[];
+    selectedAccountId?: string;
+    demoMode?: boolean;
+    onSignOut?: () => void;
+}) => {
     const focusManager = useFocusManager();
     const dialogRef = useRef<HTMLDivElement>(null);
 
@@ -84,40 +93,42 @@ export const NavAccountMenu = ({
             ref={dialogRef}
             className={cx("w-66 rounded-xl bg-secondary_alt shadow-lg ring ring-secondary_alt outline-hidden", className)}
         >
-            <div className="rounded-xl bg-primary ring-1 ring-secondary">
-                <div className="flex flex-col gap-0.5 py-1.5">
-                    <NavAccountCardMenuItem label="View profile" icon={User01} shortcut="⌘K->P" />
-                    <NavAccountCardMenuItem label="Account settings" icon={Settings01} shortcut="⌘S" />
-                    <NavAccountCardMenuItem label="Documentation" icon={BookOpen01} />
-                </div>
-                <div className="flex flex-col gap-0.5 border-t border-secondary py-1.5">
-                    <div className="px-3 pt-1.5 pb-1 text-xs font-semibold text-tertiary">Switch account</div>
+            {!demoMode && (
+                <div className="rounded-xl bg-primary ring-1 ring-secondary">
+                    <div className="flex flex-col gap-0.5 py-1.5">
+                        <NavAccountCardMenuItem label="View profile" icon={User01} shortcut="⌘K->P" />
+                        <NavAccountCardMenuItem label="Account settings" icon={Settings01} shortcut="⌘S" />
+                        <NavAccountCardMenuItem label="Documentation" icon={BookOpen01} />
+                    </div>
+                    <div className="flex flex-col gap-0.5 border-t border-secondary py-1.5">
+                        <div className="px-3 pt-1.5 pb-1 text-xs font-semibold text-tertiary">Switch account</div>
 
-                    <div className="flex flex-col gap-0.5 px-1.5">
-                        {placeholderAccounts.map((account) => (
-                            <button
-                                key={account.id}
-                                className={cx(
-                                    "relative w-full cursor-pointer rounded-md px-2 py-1.5 text-left outline-focus-ring transition duration-100 ease-linear hover:bg-primary_hover focus:z-10 focus-visible:outline-2 focus-visible:outline-offset-2",
-                                    account.id === selectedAccountId && "bg-primary_hover",
-                                )}
-                            >
-                                <AvatarLabelGroup status="online" size="md" src={account.avatar} title={account.name} subtitle={account.email} />
+                        <div className="flex flex-col gap-0.5 px-1.5">
+                            {accounts.map((account) => (
+                                <button
+                                    key={account.id}
+                                    className={cx(
+                                        "relative w-full cursor-pointer rounded-md px-2 py-1.5 text-left outline-focus-ring transition duration-100 ease-linear hover:bg-primary_hover focus:z-10 focus-visible:outline-2 focus-visible:outline-offset-2",
+                                        account.id === selectedAccountId && "bg-primary_hover",
+                                    )}
+                                >
+                                    <AvatarLabelGroup status="online" size="md" src={account.avatar} title={account.name} subtitle={account.email} />
 
-                                <RadioButtonBase isSelected={account.id === selectedAccountId} className="absolute top-2 right-2" />
-                            </button>
-                        ))}
+                                    <RadioButtonBase isSelected={account.id === selectedAccountId} className="absolute top-2 right-2" />
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="flex flex-col gap-2 px-2 pt-0.5 pb-2">
+                        <Button iconLeading={Plus} color="secondary" size="sm">
+                            Add account
+                        </Button>
                     </div>
                 </div>
-                <div className="flex flex-col gap-2 px-2 pt-0.5 pb-2">
-                    <Button iconLeading={Plus} color="secondary" size="sm">
-                        Add account
-                    </Button>
-                </div>
-            </div>
+            )}
 
-            <div className="pt-1 pb-1.5">
-                <NavAccountCardMenuItem label="Sign out" icon={LogOut01} shortcut="⌥⇧Q" />
+            <div className={cx("pt-1 pb-1.5", demoMode && "rounded-xl bg-primary ring-1 ring-secondary")}>
+                <NavAccountCardMenuItem label="Sign out" icon={LogOut01} shortcut="⌥⇧Q" onClick={onSignOut} />
             </div>
         </AriaDialog>
     );
@@ -159,11 +170,15 @@ export const NavAccountCard = ({
     selectedAccountId = "caitlyn",
     items = placeholderAccounts,
     avatarRounded,
+    demoMode = false,
+    onSignOut,
 }: {
     popoverPlacement?: Placement;
     selectedAccountId?: string;
     items?: NavAccountType[];
     avatarRounded?: boolean;
+    demoMode?: boolean;
+    onSignOut?: () => void;
 }) => {
     const triggerRef = useRef<HTMLDivElement>(null);
     const isDesktop = useBreakpoint("lg");
@@ -204,7 +219,7 @@ export const NavAccountCard = ({
                         )
                     }
                 >
-                    <NavAccountMenu selectedAccountId={selectedAccountId} accounts={items} />
+                    <NavAccountMenu selectedAccountId={selectedAccountId} accounts={items} demoMode={demoMode} onSignOut={onSignOut} />
                 </AriaPopover>
             </AriaDialogTrigger>
         </div>

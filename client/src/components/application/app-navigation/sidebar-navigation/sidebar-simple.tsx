@@ -28,6 +28,8 @@ interface SidebarNavigationProps {
     className?: string;
     /** Whether to round the account card avatar. */
     avatarRounded?: boolean;
+    /** Custom account card to render instead of the default. */
+    accountCard?: ReactNode;
 }
 
 export const SidebarNavigationSimple = ({
@@ -38,6 +40,7 @@ export const SidebarNavigationSimple = ({
     showAccountCard = true,
     hideBorder = false,
     className,
+    accountCard,
 }: SidebarNavigationProps) => {
     const MAIN_SIDEBAR_WIDTH = 280;
 
@@ -81,7 +84,7 @@ export const SidebarNavigationSimple = ({
 
                 {featureCard}
 
-                {showAccountCard && <NavAccountCard />}
+                {showAccountCard && (accountCard ?? <NavAccountCard />)}
             </div>
         </aside>
     );
