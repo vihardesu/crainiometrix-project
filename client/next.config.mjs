@@ -7,7 +7,6 @@ const nextConfig = {
         "@mastra/duckdb",
         "@duckdb/node-api",
         "@duckdb/node-bindings",
-        "@duckdb/node-bindings-darwin-arm64",
     ],
 };
 
