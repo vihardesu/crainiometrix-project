@@ -14,6 +14,8 @@ export function useAgentProcessor(aiModeEnabled: boolean) {
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     const processNext = useCallback(async () => {
+        setIsProcessing(true);
+
         try {
             const response = await fetch("/api/agent/process-next", { method: "POST" });
 
@@ -38,6 +40,7 @@ export function useAgentProcessor(aiModeEnabled: boolean) {
             setError(null);
         } catch (err) {
             setError(err instanceof Error ? err.message : "Agent processor error.");
+            setIsProcessing(false);
         }
     }, []);
 

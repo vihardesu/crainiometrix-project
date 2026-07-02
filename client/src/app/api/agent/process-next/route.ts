@@ -1,8 +1,23 @@
 import { NextResponse } from "next/server";
 import { getSessionNavigatorId } from "@/lib/auth/session";
-import { fetchNavigatorProfileIdAdmin, fetchNavigatorSettingsAdmin, fetchNextUnreadInboundMessage } from "@/lib/messaging/server-queries";
+import {
+    buildWorkflowInput,
+    createProcessingAgentAction,
+    markAgentActionFailed,
+    persistTriageResult,
+    runMessageTriageWorkflow,
+} from "@/lib/messaging/agent-runner";
+import {
+    fetchExistingAgentActionForMessage,
+    fetchNavigatorProfileIdAdmin,
+    fetchNavigatorSettingsAdmin,
+    fetchNextUnreadInboundMessage,
+    hasUnreadInboundMessages,
+} from "@/lib/messaging/server-queries";
 import type { ProcessNextResponse } from "@/lib/messaging/types";
 import { createAdminClient } from "@/utils/supabase/admin";
+
+export const maxDuration = 60;
 
 export async function POST() {
     const sessionId = await getSessionNavigatorId();
@@ -32,13 +47,50 @@ export async function POST() {
         return NextResponse.json(response);
     }
 
-    // Stub: Mastra workflow will process this message in the next phase.
-    const response: ProcessNextResponse = {
-        done: false,
-        status: "idle",
-        processingConversationId: nextMessage.conversationId,
-        triggerMessageId: nextMessage.messageId,
-    };
+    const existingAction = await fetchExistingAgentActionForMessage(supabase, nextMessage.messageId);
 
-    return NextResponse.json(response);
+    if (existingAction) {
+        const moreRemaining = await hasUnreadInboundMessages(supabase, profileId);
+        const response: ProcessNextResponse = {
+            done: !moreRemaining,
+            status: "idle",
+            processingConversationId: existingAction.conversation_id,
+            triggerMessageId: existingAction.trigger_message_id,
+            agentActionId: existingAction.id,
+        };
+        return NextResponse.json(response);
+    }
+
+    let agentActionId: string | null = null;
+
+    try {
+        agentActionId = await createProcessingAgentAction(
+            supabase,
+            profileId,
+            nextMessage.conversationId,
+            nextMessage.messageId,
+        );
+
+        const workflowInput = await buildWorkflowInput(supabase, profileId, nextMessage);
+        const workflowOutput = await runMessageTriageWorkflow(workflowInput);
+        await persistTriageResult(supabase, profileId, agentActionId, workflowOutput);
+
+        const moreRemaining = await hasUnreadInboundMessages(supabase, profileId);
+        const response: ProcessNextResponse = {
+            done: !moreRemaining,
+            status: "idle",
+            processingConversationId: nextMessage.conversationId,
+            triggerMessageId: nextMessage.messageId,
+            agentActionId,
+        };
+
+        return NextResponse.json(response);
+    } catch (error) {
+        if (agentActionId) {
+            await markAgentActionFailed(supabase, agentActionId, error);
+        }
+
+        console.error("Agent process-next failed:", error);
+        return NextResponse.json({ error: "Failed to process message." }, { status: 500 });
+    }
 }

@@ -15,16 +15,16 @@ export function AiModeOverlay({ active, statusText = "AI is triaging messages…
     return (
         <div
             className={cx(
-                "pointer-events-auto absolute inset-0 z-10 flex items-center justify-center",
-                "bg-primary/60 backdrop-blur-sm",
+                "pointer-events-auto absolute inset-0 z-10 flex items-start justify-center pt-4",
+                "bg-primary/15 backdrop-blur-[1px]",
             )}
             aria-live="polite"
             aria-label="AI mode active"
         >
-            <div className="flex flex-col items-center gap-3 rounded-xl border border-secondary bg-primary px-6 py-4 shadow-lg">
-                <span className="relative flex size-3">
+            <div className="flex items-center gap-2.5 rounded-full border border-brand-secondary bg-primary/95 px-4 py-2 shadow-md backdrop-blur-sm">
+                <span className="relative flex size-2.5">
                     <span className="absolute inline-flex size-full animate-ping rounded-full bg-fg-brand-primary opacity-75" />
-                    <span className="relative inline-flex size-3 rounded-full bg-fg-brand-primary" />
+                    <span className="relative inline-flex size-2.5 rounded-full bg-fg-brand-primary" />
                 </span>
                 <p className="text-sm font-medium text-primary">{statusText}</p>
             </div>

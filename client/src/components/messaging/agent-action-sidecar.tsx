@@ -11,6 +11,39 @@ interface AgentActionSidecarProps {
     onOpenChange: (open: boolean) => void;
 }
 
+interface ToolCallRecord {
+    tool: string;
+    input: unknown;
+    output: unknown;
+}
+
+function parseToolCalls(metadata: AgentAction["metadata"]): ToolCallRecord[] {
+    if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) {
+        return [];
+    }
+
+    const toolCalls = (metadata as { toolCalls?: unknown }).toolCalls;
+
+    if (!Array.isArray(toolCalls)) {
+        return [];
+    }
+
+    return toolCalls.filter(
+        (entry): entry is ToolCallRecord =>
+            typeof entry === "object" &&
+            entry !== null &&
+            "tool" in entry &&
+            typeof (entry as ToolCallRecord).tool === "string",
+    );
+}
+
+function formatJson(value: unknown): string {
+    try {
+        return JSON.stringify(value, null, 2);
+    } catch {
+        return String(value);
+    }
+}
 function decisionColor(decision: string | null): "brand" | "gray" | "error" | "warning" {
     switch (decision) {
         case "AI":
@@ -28,6 +61,8 @@ export function AgentActionSidecar({ action, isOpen, onOpenChange }: AgentAction
     if (!action) {
         return null;
     }
+
+    const toolCalls = parseToolCalls(action.metadata);
 
     return (
         <SlideoutMenu isOpen={isOpen} onOpenChange={onOpenChange}>
@@ -83,7 +118,32 @@ export function AgentActionSidecar({ action, isOpen, onOpenChange }: AgentAction
 
                             <section className="flex flex-col gap-2">
                                 <h3 className="text-sm font-semibold text-secondary">Tool details</h3>
-                                <p className="text-sm text-quaternary">Sub-agent tool calls will appear here once the Mastra workflow is connected.</p>
+                                {toolCalls.length === 0 ? (
+                                    <p className="text-sm text-quaternary">No tool calls for this action.</p>
+                                ) : (
+                                    <ul className="flex flex-col gap-3">
+                                        {toolCalls.map((call, index) => (
+                                            <li
+                                                key={`${call.tool}-${index}`}
+                                                className="rounded-lg border border-secondary bg-secondary_subtle p-3"
+                                            >
+                                                <p className="text-sm font-medium text-primary">{call.tool}</p>
+                                                <details className="mt-2">
+                                                    <summary className="cursor-pointer text-xs text-tertiary">Input</summary>
+                                                    <pre className="mt-1 overflow-x-auto text-xs text-quaternary">
+                                                        {formatJson(call.input)}
+                                                    </pre>
+                                                </details>
+                                                <details className="mt-2">
+                                                    <summary className="cursor-pointer text-xs text-tertiary">Output</summary>
+                                                    <pre className="mt-1 overflow-x-auto text-xs text-quaternary">
+                                                        {formatJson(call.output)}
+                                                    </pre>
+                                                </details>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
                             </section>
                         </div>
                     </SlideoutMenu.Content>

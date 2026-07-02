@@ -118,7 +118,7 @@ export function MessagesCommandCenter({ navigatorId, navigatorName }: MessagesCo
                 </aside>
 
                 <section className="relative hidden min-w-0 flex-1 flex-col md:flex">
-                    <div className={aiModeEnabled ? "pointer-events-none flex min-h-0 flex-1 flex-col opacity-60" : "flex min-h-0 flex-1 flex-col"}>
+                    <div className={aiModeEnabled ? "pointer-events-none flex min-h-0 flex-1 flex-col" : "flex min-h-0 flex-1 flex-col"}>
                         <ConversationThreadPane {...threadProps} />
                         <MessageCompose onSend={handleSend} disabled={!selectedId || aiModeEnabled} />
                     </div>
@@ -128,7 +128,7 @@ export function MessagesCommandCenter({ navigatorId, navigatorName }: MessagesCo
 
             {selectedId && (
                 <section className="relative flex min-h-0 flex-1 flex-col border-t border-secondary md:hidden">
-                    <div className={aiModeEnabled ? "pointer-events-none flex min-h-0 flex-1 flex-col opacity-60" : "flex min-h-0 flex-1 flex-col"}>
+                    <div className={aiModeEnabled ? "pointer-events-none flex min-h-0 flex-1 flex-col" : "flex min-h-0 flex-1 flex-col"}>
                         <ConversationThreadPane {...threadProps} />
                         <MessageCompose onSend={handleSend} disabled={aiModeEnabled} />
                     </div>
